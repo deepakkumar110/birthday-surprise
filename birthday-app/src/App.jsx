@@ -1,257 +1,701 @@
-import { useEffect, useState } from "react";
-
+import { useState, useEffect } from "react";
+import "./index.css";
 
 function App() {
-  const [surprise, setSurprise] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
+  const [page, setPage] = useState(1);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [confetti, setConfetti] = useState([]);
+  const [transitioning, setTransitioning] = useState(false);
 
-  useEffect(() => {
-    const createHeart = () => {
-      const heart = document.createElement("div");
-      heart.className = "floating-heart";
-      heart.innerHTML = "♥";
-      heart.style.left = Math.random() * 100 + "vw";
-      heart.style.animationDuration = 4 + Math.random() * 5 + "s";
-      heart.style.fontSize = 12 + Math.random() * 18 + "px";
+  const photos = [
+    "/images/khushboo-1.jpg",
+    "/images/khushboo-2.jpg",
+    "/images/khushboo-3.jpg",
+    "/images/khushboo-4.jpg",
+    "/images/khushboo-5.jpg",
+  ];
 
-      document.querySelector(".hearts-container")?.appendChild(heart);
+  // ========================================
+  // SMOOTH PAGE CHANGE
+  // ========================================
 
-      setTimeout(() => heart.remove(), 9000);
-    };
+  const changePage = (newPage) => {
+    if (newPage === page || transitioning) return;
 
-    const interval = setInterval(createHeart, 700);
+    setTransitioning(true);
 
-    return () => clearInterval(interval);
-  }, []);
+    setTimeout(() => {
+      setPage(newPage);
+      setSelectedPhoto(null);
 
-  const handleSurprise = () => {
-    setSurprise(true);
+      window.scrollTo({
+        top: 0,
+        behavior: "instant",
+      });
 
-    for (let i = 0; i < 35; i++) {
       setTimeout(() => {
-        const confetti = document.createElement("div");
-        confetti.className = "confetti";
-        confetti.innerHTML = ["❤️", "✨", "💖", "🎉", "🌸"][
-          Math.floor(Math.random() * 5)
-        ];
-
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.animationDuration = 2 + Math.random() * 3 + "s";
-
-        document.body.appendChild(confetti);
-
-        setTimeout(() => confetti.remove(), 5000);
-      }, i * 60);
-    }
+        setTransitioning(false);
+      }, 80);
+    }, 300);
   };
 
+  // ========================================
+  // CONFETTI
+  // ========================================
+
+  useEffect(() => {
+    if (page !== 5) {
+      setConfetti([]);
+      return;
+    }
+
+    const pieces = Array.from({ length: 100 }, (_, index) => ({
+      id: index,
+      left: Math.random() * 100,
+      delay: Math.random() * 2,
+      duration: 3 + Math.random() * 3,
+      rotation: Math.random() * 360,
+      size: 6 + Math.random() * 7,
+    }));
+
+    setConfetti(pieces);
+
+    const timer = setTimeout(() => {
+      setConfetti([]);
+    }, 8000);
+
+    return () => clearTimeout(timer);
+  }, [page]);
+
   return (
-    <div className="app">
-      <div className="hearts-container"></div>
+    <div className="birthday-app">
 
-      {/* HERO */}
-      <section className="hero">
-        <div className="hero-content">
-          <p className="small-text">A little surprise for someone special ✨</p>
+      {/* ========================================
+          PAGE TRANSITION OVERLAY
+      ======================================== */}
 
-          <h1>
-            Hey <span>Khushboo</span> ❤️
-          </h1>
+      <div
+        className={`page-transition ${
+          transitioning ? "transition-active" : ""
+        }`}
+      >
+        <div className="transition-star">✦</div>
+      </div>
 
-          <p className="hero-subtitle">
-            Today isn't just another day...
-            <br />
-            It's the day someone very special was born.
-          </p>
 
-          <button
-            className="surprise-btn"
-            onClick={() =>
-              document
-                .getElementById("birthday")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-          >
-            Open Your Surprise 🎁
-          </button>
-        </div>
+      {/* =====================================================
+          PAGE 1
+      ===================================================== */}
 
-        <div className="scroll-down">↓</div>
-      </section>
+      {page === 1 && (
+        <section className="page page-one page-enter">
 
-      {/* BIRTHDAY */}
-      <section className="birthday" id="birthday">
-        <div className="section-container">
-          <p className="section-label">THE SPECIAL DAY</p>
+          <div className="glow glow-one"></div>
+          <div className="glow glow-two"></div>
 
-          <h2>
-            Happy Birthday
-            <br />
-            <span>Khushboo ❤️</span>
-          </h2>
+          <div className="floating-heart heart-one">♡</div>
+          <div className="floating-heart heart-two">♡</div>
+          <div className="floating-heart heart-three">✦</div>
+          <div className="floating-heart heart-four">✧</div>
 
-          {/* PHOTO PLACEHOLDER */}
-          <div className="photo-wrapper">
-            <div className="photo-frame">
-              <div className="photo-placeholder">
-                <span>📸</span>
-                <p>Khushboo's Photo</p>
-                <small>Photo will be added here ❤️</small>
-              </div>
+          <div className="welcome-content">
+
+            <div className="top-label">
+              ✨ A LITTLE SURPRISE FOR YOU ✨
             </div>
+
+            <p className="hello-text">
+              Hey, Khushboo...
+            </p>
+
+            <h1 className="hero-name">
+              <span>Khushboo</span>
+              <strong>Malviya</strong>
+            </h1>
+
+            <div className="birthday-date">
+              <span></span>
+              27 · 08 · 2026
+              <span></span>
+            </div>
+
+            <p className="hero-description">
+              Today is a little more special...
+              <br />
+              because it's your day. 🎀
+            </p>
+
+            <button
+              className="surprise-button"
+              onClick={() => changePage(2)}
+            >
+              <span>Open Your Surprise</span>
+              <b>→</b>
+            </button>
+
           </div>
 
-          <p className="birthday-text">
-            May your smile always be this beautiful,
-            <br />
-            your heart always stay this pure,
-            <br />
-            and every dream of yours come true. ✨
-          </p>
-        </div>
-      </section>
+          <div className="bottom-note">
+            <span>MADE WITH</span>
+            <span className="bottom-star">✦</span>
+            <span>FOR YOU</span>
+          </div>
 
-      {/* MESSAGE */}
-      <section className="message-section">
-        <div className="glass-card">
-          <div className="quote">“</div>
+        </section>
+      )}
 
-          <p className="section-label">A MESSAGE FROM DEEPAK</p>
 
-          <h2>For You, Khushboo 💌</h2>
+      {/* =====================================================
+          PAGE 2
+      ===================================================== */}
 
-          {!showMessage ? (
-            <>
-              <p className="message-preview">
-                There are some things that are difficult to say...
-                <br />
-                so today, I decided to write them instead.
+      {page === 2 && (
+        <section className="page page-two page-enter">
+
+          <div className="page-two-glow glow-three"></div>
+          <div className="page-two-glow glow-four"></div>
+
+          <div className="decor-star star-one">✦</div>
+          <div className="decor-star star-two">✧</div>
+          <div className="decor-star star-three">✦</div>
+          <div className="decor-star star-four">♡</div>
+
+          <div className="mystery-content">
+
+            <span className="mystery-label">
+              ✦ SOMETHING IS WAITING ✦
+            </span>
+
+            <h2 className="mystery-title">
+              Khushboo...
+            </h2>
+
+            <p className="mystery-subtitle">
+              I made something
+              <br />
+              especially for you. 🎀
+            </p>
+
+            <div className="gift-area">
+
+              <div className="gift-glow"></div>
+
+              <div className="gift-box">
+
+                <div className="gift-lid">
+                  <div className="gift-ribbon"></div>
+                </div>
+
+                <div className="gift-body">
+                  <div className="gift-ribbon vertical"></div>
+                  <div className="gift-ribbon horizontal"></div>
+                </div>
+
+                <div className="gift-bow">
+                  <span></span>
+                  <span></span>
+                  <i></i>
+                </div>
+
+              </div>
+
+              <div className="gift-spark spark-a">✦</div>
+              <div className="gift-spark spark-b">✧</div>
+              <div className="gift-spark spark-c">♡</div>
+              <div className="gift-spark spark-d">✦</div>
+
+            </div>
+
+            <p className="tap-hint">
+              Go on... tap the button ✨
+            </p>
+
+            <button
+              className="open-gift-button"
+              onClick={() => changePage(3)}
+            >
+              <span>Open It</span>
+              <b>✦</b>
+            </button>
+
+            <button
+              className="back-to-welcome"
+              onClick={() => changePage(1)}
+            >
+              ← Back
+            </button>
+
+          </div>
+
+        </section>
+      )}
+
+
+      {/* =====================================================
+          PAGE 3
+      ===================================================== */}
+
+      {page === 3 && (
+        <section className="page page-three page-enter">
+
+          <div className="gallery-glow gallery-glow-one"></div>
+          <div className="gallery-glow gallery-glow-two"></div>
+
+          <div className="gallery-decor decor-left">
+            ✦
+          </div>
+
+          <div className="gallery-decor decor-right">
+            ♡
+          </div>
+
+          <div className="gallery-content">
+
+            <div className="gallery-heading">
+
+              <span className="gallery-label">
+                ✦ A LITTLE GALLERY ✦
+              </span>
+
+              <h2>
+                Moments worth
+                <span>remembering</span>
+              </h2>
+
+              <p>
+                A few beautiful moments of you... ✨
               </p>
+
+            </div>
+
+            <div className="photo-grid">
+
+              {photos.map((photo, index) => (
+                <div
+                  className={`photo-card photo-card-${index + 1}`}
+                  key={photo}
+                  onClick={() => setSelectedPhoto(index)}
+                >
+
+                  <div className="photo-inner">
+
+                    <img
+                      src={photo}
+                      alt={`Khushboo ${index + 1}`}
+                    />
+
+                    <div className="photo-overlay">
+                      <span>
+                        View ✦
+                      </span>
+                    </div>
+
+                  </div>
+
+                </div>
+              ))}
+
+            </div>
+
+            <p className="gallery-message">
+              Every picture has its own little story. 💗
+            </p>
+
+            <div className="gallery-buttons">
 
               <button
-                className="read-btn"
-                onClick={() => setShowMessage(true)}
+                className="gallery-back"
+                onClick={() => changePage(2)}
               >
-                Read My Message 💌
+                ← Back
               </button>
-            </>
-          ) : (
-            <div className="full-message">
-              <p>
-                Dear Khushboo,
-              </p>
 
-              <p>
-                On your special day, I just want to wish you a life full of
-                happiness, beautiful moments, and endless reasons to smile.
-              </p>
+              <button
+                className="gallery-next"
+                onClick={() => changePage(4)}
+              >
+                There's a message for you
+                <span>→</span>
+              </button>
 
-              <p>
-                You deserve all the good things life has to offer.
-                Never stop being the amazing person you are.
-              </p>
-
-              <p>
-                And whenever life feels difficult, I hope you remember that
-                there will always be someone wishing the best for you.
-              </p>
-
-              <p className="signature">
-                Happy Birthday once again ❤️
-                <br />
-                <strong>— Deepak Malviya</strong>
-              </p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* WHY SPECIAL */}
-      <section className="special-section">
-        <div className="section-container">
-          <p className="section-label">JUST A FEW THINGS</p>
-
-          <h2>
-            Why You're <span>Special</span> ✨
-          </h2>
-
-          <div className="cards">
-            <div className="special-card">
-              <div className="card-icon">😊</div>
-              <h3>Your Smile</h3>
-              <p>
-                Some smiles can make an ordinary day feel a little more
-                beautiful.
-              </p>
             </div>
 
-            <div className="special-card">
-              <div className="card-icon">🌸</div>
-              <h3>Your Heart</h3>
-              <p>
-                Stay kind, stay genuine and never change the beautiful person
-                you are.
-              </p>
-            </div>
-
-            <div className="special-card">
-              <div className="card-icon">✨</div>
-              <h3>Your Presence</h3>
-              <p>
-                Some people simply make moments more memorable by being there.
-              </p>
-            </div>
           </div>
-        </div>
-      </section>
 
-      {/* SURPRISE */}
-      <section className="surprise-section">
-        <div className="surprise-content">
-          <div className="gift">🎁</div>
 
-          <p className="section-label">ONE LAST THING</p>
+          {/* PHOTO MODAL */}
 
-          <h2>
-            I Have a <span>Surprise</span> For You
-          </h2>
+          {selectedPhoto !== null && (
+            <div
+              className="photo-modal"
+              onClick={() => setSelectedPhoto(null)}
+            >
 
-          <p>
-            Because birthdays deserve a little extra magic...
-          </p>
+              <button
+                className="close-modal"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedPhoto(null);
+                }}
+              >
+                ×
+              </button>
 
-          <button className="magic-btn" onClick={handleSurprise}>
-            {surprise ? "✨ Happy Birthday! ✨" : "Click For Magic ✨"}
-          </button>
+              <button
+                className="photo-nav photo-prev"
+                onClick={(e) => {
+                  e.stopPropagation();
 
-          {surprise && (
-            <div className="final-message">
-              <h3>🎉 HAPPY BIRTHDAY KHUSHBOO 🎉</h3>
+                  setSelectedPhoto(
+                    selectedPhoto === 0
+                      ? photos.length - 1
+                      : selectedPhoto - 1
+                  );
+                }}
+              >
+                ←
+              </button>
 
-              <p>
-                May this new chapter of your life be
-                <br />
-                happier, brighter and more beautiful than ever. ❤️
-              </p>
+              <div
+                className="modal-image-wrapper"
+                onClick={(e) => e.stopPropagation()}
+              >
 
-              <div className="final-heart">❤️</div>
+                <img
+                  src={photos[selectedPhoto]}
+                  alt={`Khushboo ${selectedPhoto + 1}`}
+                />
 
-              <p className="from">
-                With lots of good wishes
-                <br />
-                <strong>Deepak Malviya</strong>
-              </p>
+                <div className="photo-counter">
+                  {selectedPhoto + 1} / {photos.length}
+                </div>
+
+              </div>
+
+              <button
+                className="photo-nav photo-next"
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  setSelectedPhoto(
+                    selectedPhoto === photos.length - 1
+                      ? 0
+                      : selectedPhoto + 1
+                  );
+                }}
+              >
+                →
+              </button>
+
             </div>
           )}
-        </div>
-      </section>
 
-      {/* FOOTER */}
-      <footer>
-        Made with ❤️ by <strong>Deepak Malviya</strong>
-        <br />
-        <span>For Khushboo's Special Day ✨</span>
-      </footer>
+        </section>
+      )}
+
+
+      {/* =====================================================
+          PAGE 4
+      ===================================================== */}
+
+      {page === 4 && (
+        <section className="page page-four page-enter">
+
+          <div className="letter-glow letter-glow-one"></div>
+          <div className="letter-glow letter-glow-two"></div>
+
+          <div className="letter-decor letter-heart-one">
+            ♡
+          </div>
+
+          <div className="letter-decor letter-heart-two">
+            ✦
+          </div>
+
+          <div className="letter-decor letter-heart-three">
+            ♡
+          </div>
+
+          <div className="letter-content">
+
+            <span className="letter-label">
+              ✦ A LITTLE MESSAGE ✦
+            </span>
+
+            <h2 className="letter-heading">
+              Dear <span>Khushboo,</span>
+            </h2>
+
+            <div className="letter-card">
+
+              <div className="letter-top">
+                <span>
+                  For you
+                </span>
+
+                <span>
+                  ♡
+                </span>
+              </div>
+
+              <div className="letter-text">
+
+                <p>
+                  First of all...
+                </p>
+
+                <p>
+                  <strong>
+                    Happy Birthday! 🎂✨
+                  </strong>
+                </p>
+
+                <p>
+                  I could have simply sent you a normal
+                  “Happy Birthday” message, but I thought
+                  your day deserved a little more effort.
+                </p>
+
+                <p>
+                  So, I made this little surprise just for you.
+                  I hope it brings a smile to your face. 😊
+                </p>
+
+                <p>
+                  May this new year of your life bring you
+                  lots of happiness, success, beautiful
+                  memories and countless reasons to smile.
+                </p>
+
+                <p>
+                  Keep smiling, keep being yourself,
+                  and always remember that you deserve
+                  wonderful things in life. ✨
+                </p>
+
+              </div>
+
+              <div className="letter-signature">
+
+                <span>
+                  With lots of good wishes,
+                </span>
+
+                <strong>
+                  Deepak Malviya
+                </strong>
+
+                <small>
+                  ✦
+                </small>
+
+              </div>
+
+            </div>
+
+            <div className="letter-navigation">
+
+              <button
+                className="letter-back"
+                onClick={() => changePage(3)}
+              >
+                ← Back
+              </button>
+
+              <button
+                className="letter-next"
+                onClick={() => changePage(5)}
+              >
+                One Last Surprise
+                <span>→</span>
+              </button>
+
+            </div>
+
+          </div>
+
+        </section>
+      )}
+
+
+      {/* =====================================================
+          PAGE 5
+      ===================================================== */}
+
+      {page === 5 && (
+        <section className="page page-five page-enter">
+
+          {/* CONFETTI */}
+
+          <div className="confetti-container">
+
+            {confetti.map((piece) => (
+              <span
+                key={piece.id}
+                className="confetti-piece"
+                style={{
+                  left: `${piece.left}%`,
+                  animationDelay: `${piece.delay}s`,
+                  animationDuration: `${piece.duration}s`,
+                  width: `${piece.size}px`,
+                  height: `${piece.size * 1.5}px`,
+                }}
+              ></span>
+            ))}
+
+          </div>
+
+
+          <div className="final-glow final-glow-one"></div>
+          <div className="final-glow final-glow-two"></div>
+
+          <div className="final-decor final-star-one">
+            ✦
+          </div>
+
+          <div className="final-decor final-star-two">
+            ✧
+          </div>
+
+          <div className="final-decor final-heart-one">
+            ♡
+          </div>
+
+          <div className="final-decor final-heart-two">
+            ♡
+          </div>
+
+
+          {/* Balloons */}
+
+          <div className="balloon balloon-one">
+            <span>♥</span>
+          </div>
+
+          <div className="balloon balloon-two">
+            <span>✦</span>
+          </div>
+
+          <div className="balloon balloon-three">
+            <span>♡</span>
+          </div>
+
+
+          {/* FINAL CONTENT */}
+
+          <div className="final-content">
+
+            <span className="final-label">
+              ✦ THE FINAL SURPRISE ✦
+            </span>
+
+            <p className="final-small-title">
+              Once again...
+            </p>
+
+            <h1 className="final-title">
+              Happy Birthday
+              <span>
+                Khushboo
+              </span>
+            </h1>
+
+
+            {/* CAKE */}
+
+            <div className="cake-area">
+
+              <div className="cake-glow"></div>
+
+              <div className="cake">
+
+                <div className="candle">
+                  <div className="flame"></div>
+                </div>
+
+                <div className="cake-top">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+
+                <div className="cake-body">
+
+                  <div className="cake-cream"></div>
+
+                  <div className="cake-decoration">
+                    <span>♡</span>
+                    <span>✦</span>
+                    <span>♡</span>
+                  </div>
+
+                </div>
+
+                <div className="cake-plate"></div>
+
+              </div>
+
+            </div>
+
+
+            {/* MESSAGE */}
+
+            <div className="final-message">
+
+              <p>
+                May your smile always be as beautiful
+                as it is today. ✨
+              </p>
+
+              <p>
+                Wishing you a year full of happiness,
+                success, laughter and beautiful memories.
+              </p>
+
+              <strong>
+                Stay happy. Stay amazing. 💗
+              </strong>
+
+            </div>
+
+
+            <div className="final-signature">
+
+              <span>
+                Made specially for you
+              </span>
+
+              <strong>
+                — Deepak Malviya
+              </strong>
+
+            </div>
+
+
+            <div className="final-buttons">
+
+              <button
+                className="final-back"
+                onClick={() => changePage(4)}
+              >
+                ← Back
+              </button>
+
+              <button
+                className="replay-button"
+                onClick={() => changePage(1)}
+              >
+                Replay Surprise
+                <span>↻</span>
+              </button>
+
+            </div>
+
+          </div>
+
+        </section>
+      )}
+
     </div>
   );
 }
