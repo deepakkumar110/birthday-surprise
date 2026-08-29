@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./index.css";
 
 function App() {
@@ -6,6 +6,32 @@ function App() {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [confetti, setConfetti] = useState([]);
   const [transitioning, setTransitioning] = useState(false);
+
+  // ========================================
+  // FINAL PAGE BIRTHDAY MUSIC
+  // ========================================
+
+  const birthdayAudioRef = useRef(null);
+
+  useEffect(() => {
+    const audio = new Audio("/music/happy-birthday.mp3");
+    audio.loop = false;
+    audio.preload = "auto";
+    birthdayAudioRef.current = audio;
+
+    return () => {
+      audio.pause();
+      audio.currentTime = 0;
+      birthdayAudioRef.current = null;
+    };
+  }, []);
+
+  const stopBirthdayMusic = () => {
+    if (birthdayAudioRef.current) {
+      birthdayAudioRef.current.pause();
+      birthdayAudioRef.current.currentTime = 0;
+    }
+  };
 
   const photos = [
     "/images/khushboo-1.jpg",
@@ -21,6 +47,19 @@ function App() {
 
   const changePage = (newPage) => {
     if (newPage === page || transitioning) return;
+
+    if (page === 5 && newPage !== 5) {
+      stopBirthdayMusic();
+    }
+
+    if (newPage === 5 && birthdayAudioRef.current) {
+      const audio = birthdayAudioRef.current;
+      audio.currentTime = 0;
+
+      audio.play().catch(() => {
+        console.log("Browser blocked automatic music playback.");
+      });
+    }
 
     setTransitioning(true);
 
@@ -39,6 +78,12 @@ function App() {
     }, 300);
   };
 
+  useEffect(() => {
+    if (page !== 5) {
+      stopBirthdayMusic();
+    }
+  }, [page]);
+
   // ========================================
   // CONFETTI
   // ========================================
@@ -49,20 +94,20 @@ function App() {
       return;
     }
 
-    const pieces = Array.from({ length: 100 }, (_, index) => ({
+    const pieces = Array.from({ length: 130 }, (_, index) => ({
       id: index,
       left: Math.random() * 100,
-      delay: Math.random() * 2,
-      duration: 3 + Math.random() * 3,
+      delay: Math.random() * 2.5,
+      duration: 3 + Math.random() * 4,
       rotation: Math.random() * 360,
-      size: 6 + Math.random() * 7,
+      size: 5 + Math.random() * 8,
     }));
 
     setConfetti(pieces);
 
     const timer = setTimeout(() => {
       setConfetti([]);
-    }, 8000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [page]);
@@ -71,7 +116,7 @@ function App() {
     <div className="birthday-app">
 
       {/* ========================================
-          PAGE TRANSITION OVERLAY
+          PAGE TRANSITION
       ======================================== */}
 
       <div
@@ -115,7 +160,7 @@ function App() {
 
             <div className="birthday-date">
               <span></span>
-              27 · 08 · 2026
+              02 · 09 · 2026
               <span></span>
             </div>
 
@@ -519,16 +564,17 @@ function App() {
 
 
       {/* =====================================================
-          PAGE 5
+          PAGE 5 — FINAL WOW MOMENT
       ===================================================== */}
 
       {page === 5 && (
         <section className="page page-five page-enter">
 
-          {/* CONFETTI */}
+          {/* ========================================
+              CONFETTI
+          ======================================== */}
 
           <div className="confetti-container">
-
             {confetti.map((piece) => (
               <span
                 key={piece.id}
@@ -539,15 +585,25 @@ function App() {
                   animationDuration: `${piece.duration}s`,
                   width: `${piece.size}px`,
                   height: `${piece.size * 1.5}px`,
+                  transform: `rotate(${piece.rotation}deg)`,
                 }}
               ></span>
             ))}
-
           </div>
 
 
+          {/* ========================================
+              BACKGROUND GLOW
+          ======================================== */}
+
           <div className="final-glow final-glow-one"></div>
           <div className="final-glow final-glow-two"></div>
+          <div className="final-glow final-glow-three"></div>
+
+
+          {/* ========================================
+              DECORATIONS
+          ======================================== */}
 
           <div className="final-decor final-star-one">
             ✦
@@ -555,6 +611,10 @@ function App() {
 
           <div className="final-decor final-star-two">
             ✧
+          </div>
+
+          <div className="final-decor final-star-three">
+            ✦
           </div>
 
           <div className="final-decor final-heart-one">
@@ -566,22 +626,44 @@ function App() {
           </div>
 
 
-          {/* Balloons */}
+          {/* ========================================
+              BALLOONS
+          ======================================== */}
 
           <div className="balloon balloon-one">
             <span>♥</span>
+            <i></i>
           </div>
 
           <div className="balloon balloon-two">
             <span>✦</span>
+            <i></i>
           </div>
 
           <div className="balloon balloon-three">
             <span>♡</span>
+            <i></i>
+          </div>
+
+          <div className="balloon balloon-four">
+            <span>♥</span>
+            <i></i>
+          </div>
+
+          <div className="balloon balloon-five">
+            <span>✦</span>
+            <i></i>
+          </div>
+
+          <div className="balloon balloon-six">
+            <span>♡</span>
+            <i></i>
           </div>
 
 
-          {/* FINAL CONTENT */}
+          {/* ========================================
+              FINAL CONTENT
+          ======================================== */}
 
           <div className="final-content">
 
@@ -601,7 +683,47 @@ function App() {
             </h1>
 
 
-            {/* CAKE */}
+            {/* ========================================
+                FINAL PHOTO
+            ======================================== */}
+
+            <div className="final-photo-wrapper">
+
+              <div className="final-photo-ring"></div>
+
+              <div className="final-photo-glow"></div>
+
+              <div className="final-photo">
+
+                <img
+                  src="/images/khushboo-final.jpg"
+                  alt="Khushboo"
+                />
+
+              </div>
+
+              <div className="photo-spark spark-one">
+                ✦
+              </div>
+
+              <div className="photo-spark spark-two">
+                ✧
+              </div>
+
+              <div className="photo-spark spark-three">
+                ♡
+              </div>
+
+              <div className="photo-spark spark-four">
+                ✦
+              </div>
+
+            </div>
+
+
+            {/* ========================================
+                CAKE
+            ======================================== */}
 
             <div className="cake-area">
 
@@ -638,7 +760,9 @@ function App() {
             </div>
 
 
-            {/* MESSAGE */}
+            {/* ========================================
+                FINAL MESSAGE
+            ======================================== */}
 
             <div className="final-message">
 
@@ -659,18 +783,12 @@ function App() {
             </div>
 
 
-            <div className="final-signature">
+            {/* No signature here as requested */}
 
-              <span>
-                Made specially for you
-              </span>
 
-              <strong>
-                — Deepak Malviya
-              </strong>
-
-            </div>
-
+            {/* ========================================
+                BUTTONS
+            ======================================== */}
 
             <div className="final-buttons">
 
